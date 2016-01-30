@@ -1,3 +1,5 @@
+#http://www.tutorialspoint.com/http/http_requests.htm
+
 #!/usr/bin/env python
 # coding: utf-8
 # Copyright 2013 Abram Hindle
@@ -33,21 +35,55 @@ class HTTPRequest(object):
         self.body = body
 
 class HTTPClient(object):
-    #def get_host_port(self,url):
+    def get_host_port(self,url):
+        #self.url_contents = url.split(':')
+        #print self.url_contents
+        contents = url.split("/")
+        host_port =  int(contents.pop(0))
+        #print contents
+        dash = "/"
+        path = dash.join(contents)
+        return host_port, path
 
     def connect(self, host, port):
         # use sockets!
-        return None
+        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket.connect((host, port))
+        return clientsocket
 
     def get_code(self, data):
+        
         return None
 
     def get_headers(self,data):
+        
         return None
 
     def get_body(self, data):
+        
         return None
+    
+    def breakdown_url (self, url):
+        url_content = url.split(":")
+        url_content.pop(0)
+        #print url_content
+        if len(url_content)== 2:
+            #print url_content[1]
+            host_port, path = self.get_host_port(url_content[1])
+            host =  url_content[0].strip("//")
 
+        elif len(url_content) == 1:
+            host_port = 80
+            url_info = url_content[0].split("/")
+            host = url_info.pop(0).strip("//")
+            dash = "/"
+            path = dash.join(contents)
+            
+        #print "host: ",host
+        #print "host port: ",host_port
+        #print "path: ",path
+        return host, host_port, path
+    
     # read everything from the socket
     def recvall(self, sock):
         buffer = bytearray()
@@ -63,11 +99,44 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+        if args == None:
+            arguments = ''
+        else:
+            arguments = urllib.urlencode(args)
+        host, port,path = self.breakdown_url(url)
+        sock = self.connect(host, port)
+        sock.sendall("GET /"+path+" HTTP/1.1\r\n")
+        sock.sendall("Host: "+host+"\r\n\r\n")
+        sock.sendall("Connection: close\r\n\r\n")
+        sock.sendall(str(arguments)+"/r/n/r/n")
+        returns =  self.recvall(sock).split("\r\n\r\n")
+        sock.close()
+        print returns
+        code = self.getcode(returns[0])
+        body = self.getbody(returns[1])
         return HTTPRequest(code, body)
 
     def POST(self, url, args=None):
         code = 500
         body = ""
+        '''
+        if args == None:
+            arguments = ''
+        else:
+            arguments = urllib.urlencode(args)
+            
+        host, port,path = self.breakdown_url(url)
+        sock = self.connect(host, port)
+        sock.sendall("Post /"+path+" HTTP/1.1\r\n")
+        sock.sendall("Host: "+host+"\r\n")
+        sock.sendall("Content_Type: application/x-www-form-urlencoded")
+        sock.sendall("Content-Length: "+str(len(arguments))+"\r\n")
+        sock.sendall("Connection: close\r\n\r\n")
+        sock.sendall(arguments+"/r/n/r/n")
+        returns =  self.recvall(sock).split("\r\n\r\n")
+        sock.close()        
+        sock = self.connect(host, port)
+        '''
         return HTTPRequest(code, body)
 
     def command(self, url, command="GET", args=None):
@@ -83,6 +152,6 @@ if __name__ == "__main__":
         help()
         sys.exit(1)
     elif (len(sys.argv) == 3):
-        print client.command( sys.argv[1], sys.argv[2] )
+        print client.command( sys.argv[2], sys.argv[1] )
     else:
         print client.command( command, sys.argv[1] )    
