@@ -53,7 +53,11 @@ class HTTPClient(object):
 
     def get_code(self, data):
         contents = data.split(' ')
-        code = contents[1]
+        print len(contents)
+        if len(contents) > 1:
+            code = contents[1]
+        else:
+            code = contents[0]
         #print code
         return int(code)
 
