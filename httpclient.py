@@ -52,16 +52,20 @@ class HTTPClient(object):
         return clientsocket
 
     def get_code(self, data):
-        
-        return None
+        contents = data.split(' ')
+        code = contents[1]
+        #print code
+        return int(code)
 
     def get_headers(self,data):
-        
+        #print(data)
         return None
 
     def get_body(self, data):
         
-        return None
+        contents = data.split("/r/n/r/n")
+        print contents
+        return ''
     
     def breakdown_url (self, url):
         url_content = url.split(":")
@@ -108,18 +112,18 @@ class HTTPClient(object):
         sock.sendall("GET /"+path+" HTTP/1.1\r\n")
         sock.sendall("Host: "+host+"\r\n\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        sock.sendall(str(arguments)+"/r/n/r/n")
+        sock.sendall(str(arguments)+"\r\n\r\n")
         returns =  self.recvall(sock).split("\r\n\r\n")
         sock.close()
-        print returns
-        code = self.getcode(returns[0])
-        body = self.getbody(returns[1])
+        #print returns
+        code = self.get_code(returns[0])
+        body = returns[1]
         return HTTPRequest(code, body)
 
     def POST(self, url, args=None):
         code = 500
         body = ""
-        '''
+        
         if args == None:
             arguments = ''
         else:
@@ -127,16 +131,17 @@ class HTTPClient(object):
             
         host, port,path = self.breakdown_url(url)
         sock = self.connect(host, port)
-        sock.sendall("Post /"+path+" HTTP/1.1\r\n")
+        sock.sendall("POST /"+path+" HTTP/1.1\r\n")
         sock.sendall("Host: "+host+"\r\n")
         sock.sendall("Content_Type: application/x-www-form-urlencoded")
-        sock.sendall("Content-Length: "+str(len(arguments))+"\r\n")
+        sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        sock.sendall(arguments+"/r/n/r/n")
+        sock.sendall(arguments+"\r\n\r\n")
         returns =  self.recvall(sock).split("\r\n\r\n")
         sock.close()        
         sock = self.connect(host, port)
-        '''
+        code = self.get_code(returns[0])
+        body = returns[1]        
         return HTTPRequest(code, body)
 
     def command(self, url, command="GET", args=None):
