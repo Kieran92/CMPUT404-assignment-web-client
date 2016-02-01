@@ -62,15 +62,15 @@ class HTTPClient(object):
         return None
 
     def get_body(self, data):
-        
-        contents = data.split("/r/n/r/n")
-        print contents
-        return ''
+        if len(data) > 1:
+            return data[1]
+        else:
+            return data[0] 
     
     def breakdown_url (self, url):
         url_content = url.split(":")
         url_content.pop(0)
-        #print url_content
+        print url_content
         if len(url_content)== 2:
             #print url_content[1]
             host_port, path = self.get_host_port(url_content[1])
@@ -78,13 +78,22 @@ class HTTPClient(object):
 
         elif len(url_content) == 1:
             host_port = 80
-            url_info = url_content[0].split("/")
-            host = url_info.pop(0).strip("//")
-            dash = "/"
-            path = dash.join(contents)
-            
-        #print "host: ",host
-        #print "host port: ",host_port
+            url_info = url_content[0].strip("//")
+            print "WUUUUUUUUUUUUUUUUUUUUUUUUUT"
+            print  url_info
+            print "*************************************************************"
+            if "/" in url_info:
+                url_pieces = url_info.split("/")
+                host = url_pieces.pop(0)
+                dash = "/"
+                path = dash.join(url_pieces)
+            else:
+                host = url_info
+                path = ''
+        print "#################################################################"    
+        print "host: ",host
+        print "host port: ",host_port
+        print "#################################################################"  
         #print "path: ",path
         return host, host_port, path
     
@@ -107,17 +116,19 @@ class HTTPClient(object):
             arguments = ''
         else:
             arguments = urllib.urlencode(args)
+            
         host, port,path = self.breakdown_url(url)
+        
         sock = self.connect(host, port)
         sock.sendall("GET /"+path+" HTTP/1.1\r\n")
         sock.sendall("Host: "+host+"\r\n\r\n")
+        sock.sendall(str(arguments)+"\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        sock.sendall(str(arguments)+"\r\n\r\n")
         returns =  self.recvall(sock).split("\r\n\r\n")
         sock.close()
         #print returns
         code = self.get_code(returns[0])
-        body = returns[1]
+        body = self.get_body(returns) 
         return HTTPRequest(code, body)
 
     def POST(self, url, args=None):
@@ -128,20 +139,20 @@ class HTTPClient(object):
             arguments = ''
         else:
             arguments = urllib.urlencode(args)
-            
+        print "these are the arguments "+arguments    
         host, port,path = self.breakdown_url(url)
         sock = self.connect(host, port)
         sock.sendall("POST /"+path+" HTTP/1.1\r\n")
         sock.sendall("Host: "+host+"\r\n")
-        sock.sendall("Content_Type: application/x-www-form-urlencoded")
-        sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n")
+        sock.sendall("Content_Type: application/x-www-form-urlencoded\r\n")
+        sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n\r\n")
+        sock.sendall(str(arguments)+"\r\n\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        sock.sendall(arguments+"\r\n\r\n")
         returns =  self.recvall(sock).split("\r\n\r\n")
         sock.close()        
         sock = self.connect(host, port)
         code = self.get_code(returns[0])
-        body = returns[1]        
+        body = self.get_body(returns)        
         return HTTPRequest(code, body)
 
     def command(self, url, command="GET", args=None):
