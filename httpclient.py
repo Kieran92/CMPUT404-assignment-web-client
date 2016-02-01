@@ -2,7 +2,7 @@
 
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright 2013 Abram Hindle
+# Copyright 2013 Abram Hindle, Kieran Boyle
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,9 +79,9 @@ class HTTPClient(object):
         elif len(url_content) == 1:
             host_port = 80
             url_info = url_content[0].strip("//")
-            print "WUUUUUUUUUUUUUUUUUUUUUUUUUT"
-            print  url_info
-            print "*************************************************************"
+            #print "WUUUUUUUUUUUUUUUUUUUUUUUUUT"
+            #print  url_info
+            #print "*************************************************************"
             if "/" in url_info:
                 url_pieces = url_info.split("/")
                 host = url_pieces.pop(0)
@@ -90,10 +90,10 @@ class HTTPClient(object):
             else:
                 host = url_info
                 path = ''
-        print "#################################################################"    
-        print "host: ",host
-        print "host port: ",host_port
-        print "#################################################################"  
+        #print "#################################################################"    
+        #print "host: ",host
+        #print "host port: ",host_port
+        #print "#################################################################"  
         #print "path: ",path
         return host, host_port, path
     
