@@ -150,7 +150,7 @@ class HTTPClient(object):
         sock.sendall("Host: "+host+"\r\n")
         sock.sendall("Content_Type: application/x-www-form-urlencoded\r\n")
         sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n\r\n")
-        sock.sendall(str(arguments)+"\r\n\r\n")
+        sock.sendall(str(arguments)+"\r\n\r\n"+"Connection: close\r\n\r\n")
         #sock.sendall("Connection: close\r\n\r\n")
         response = self.recvall(sock)
 
