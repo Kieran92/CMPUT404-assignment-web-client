@@ -124,7 +124,9 @@ class HTTPClient(object):
         sock.sendall("Host: "+host+"\r\n\r\n")
         sock.sendall(str(arguments)+"\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        returns =  self.recvall(sock).split("\r\n\r\n")
+        response = self.recvall(sock)
+        print response
+        returns =  response.split("\r\n\r\n")
         sock.close()
         #print returns
         code = self.get_code(returns[0])
@@ -148,7 +150,9 @@ class HTTPClient(object):
         sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n\r\n")
         sock.sendall(str(arguments)+"\r\n\r\n")
         sock.sendall("Connection: close\r\n\r\n")
-        returns =  self.recvall(sock).split("\r\n\r\n")
+        response = self.recvall(sock)
+        print response
+        returns =  response.split("\r\n\r\n")
         sock.close()        
         sock = self.connect(host, port)
         code = self.get_code(returns[0])
