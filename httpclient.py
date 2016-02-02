@@ -123,8 +123,8 @@ class HTTPClient(object):
         sock = self.connect(host, port)
         sock.sendall("GET /"+path+" HTTP/1.1\r\n")
         sock.sendall("Host: "+host+"\r\n\r\n")
-        sock.sendall(str(arguments)+"\r\n")
-        sock.sendall("Connection: close\r\n\r\n")
+        sock.sendall(str(arguments)+"\r\n"+"Connection: close\r\n\r\n")
+        #sock.sendall("Connection: close\r\n\r\n")
         response = self.recvall(sock)
         returns =  response.split("\r\n\r\n")
         
