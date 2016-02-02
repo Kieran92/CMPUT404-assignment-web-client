@@ -35,6 +35,7 @@ class HTTPRequest(object):
         self.body = body
 
 class HTTPClient(object):
+    #this function gets the host port 
     def get_host_port(self,url):
         #self.url_contents = url.split(':')
         #print self.url_contents
@@ -44,29 +45,29 @@ class HTTPClient(object):
         dash = "/"
         path = dash.join(contents)
         return host_port, path
-
+    #this fucntion connects via socket to a server
     def connect(self, host, port):
         # use sockets!
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientsocket.connect((host, port))
         return clientsocket
-
+    #this function gets the value of the HTTP code
     def get_code(self, data):
         contents = data.split(' ')
         code = contents[1]
         #print code
         return int(code)
-
+    #I don't use this function at all
     def get_headers(self,data):
         #print(data)
         return None
-
+    #this function gets the body of the return
     def get_body(self, data):
         if len(data) > 1:
             return data[1]
         else:
             return data[0] 
-    
+    #this function breaks the url into pieces so that I can make a post or a get
     def breakdown_url (self, url):
         url_content = url.split(":")
         url_content.pop(0)
@@ -108,7 +109,7 @@ class HTTPClient(object):
             else:
                 done = not part
         return str(buffer)
-
+    #this function handles GET requests
     def GET(self, url, args=None):
         code = 500
         body = ""
@@ -133,7 +134,7 @@ class HTTPClient(object):
         print response
         sock.close()
         return HTTPRequest(code, body)
-
+    #this fucntion handles POST requests
     def POST(self, url, args=None):
         code = 500
         body = ""
