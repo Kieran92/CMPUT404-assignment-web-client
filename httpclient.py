@@ -35,7 +35,6 @@ class HTTPRequest(object):
         self.body = body
 
 class HTTPClient(object):
-    #this function gets the value of the host port
     def get_host_port(self,url):
         #self.url_contents = url.split(':')
         #print self.url_contents
@@ -45,29 +44,29 @@ class HTTPClient(object):
         dash = "/"
         path = dash.join(contents)
         return host_port, path
-    #this function connects to the server via socket
+
     def connect(self, host, port):
         # use sockets!
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientsocket.connect((host, port))
         return clientsocket
-    #this function gets the value of code that needs to be returned
+
     def get_code(self, data):
         contents = data.split(' ')
         code = contents[1]
         #print code
         return int(code)
-    #I actually do not use this function
+
     def get_headers(self,data):
         #print(data)
         return None
-    #this returns the body of the response
+
     def get_body(self, data):
         if len(data) > 1:
             return data[1]
         else:
             return data[0] 
-    #this function breaks the url down into pieces so things can be done
+    
     def breakdown_url (self, url):
         url_content = url.split(":")
         url_content.pop(0)
@@ -109,7 +108,7 @@ class HTTPClient(object):
             else:
                 done = not part
         return str(buffer)
-    #this is for the get methods that allow you to ahndle HTTP gets
+
     def GET(self, url, args=None):
         code = 500
         body = ""
@@ -126,14 +125,15 @@ class HTTPClient(object):
         sock.sendall(str(arguments)+"\r\n")
         sock.sendall("Connection: close\r\n\r\n")
         response = self.recvall(sock)
-        print response
         returns =  response.split("\r\n\r\n")
-        sock.close()
+        
         #print returns
         code = self.get_code(returns[0])
         body = self.get_body(returns) 
+        print response
+        sock.close()
         return HTTPRequest(code, body)
-    #This function handles post requests
+
     def POST(self, url, args=None):
         code = 500
         body = ""
@@ -142,7 +142,7 @@ class HTTPClient(object):
             arguments = ''
         else:
             arguments = urllib.urlencode(args)
-        print "these are the arguments "+arguments    
+        #print "these are the arguments "+arguments    
         host, port,path = self.breakdown_url(url)
         sock = self.connect(host, port)
         sock.sendall("POST /"+path+" HTTP/1.1\r\n")
@@ -150,14 +150,17 @@ class HTTPClient(object):
         sock.sendall("Content_Type: application/x-www-form-urlencoded\r\n")
         sock.sendall("Content-Length: "+ str(len(arguments))+"\r\n\r\n")
         sock.sendall(str(arguments)+"\r\n\r\n")
-        sock.sendall("Connection: close\r\n\r\n")
+        #sock.sendall("Connection: close\r\n\r\n")
         response = self.recvall(sock)
-        print response
+
         returns =  response.split("\r\n\r\n")
-        sock.close()        
-        sock = self.connect(host, port)
+                
+        
+        #sock = self.connect(host, port)
         code = self.get_code(returns[0])
-        body = self.get_body(returns)        
+        body = self.get_body(returns)
+        print response
+        sock.close()
         return HTTPRequest(code, body)
 
     def command(self, url, command="GET", args=None):
